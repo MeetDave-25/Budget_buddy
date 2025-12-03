@@ -86,8 +86,8 @@ See the [LICENSE](LICENSE) file for full terms.
 ## 📞 Contact
 
 **Meet G. Dave**
-- Email: your.email@example.com _(Replace with your email)_
-- GitHub: [@yourusername](https://github.com/yourusername) _(Replace with your username)_
+- Email: meetgdave999@gmail.com
+- GitHub: [@MeetDave-25](https://github.com/MeetDave-25)
 
 ## 🙏 Acknowledgments
 
