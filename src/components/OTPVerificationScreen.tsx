@@ -141,7 +141,7 @@ export function OTPVerificationScreen({ email, onVerified, onBack }: OTPVerifica
 
                     <div className="space-y-6">
                         {/* OTP Input */}
-                        <div className="flex justify-center gap-2" onPaste={handlePaste}>
+                        <div className="flex justify-center gap-1 sm:gap-2" onPaste={handlePaste}>
                             {otp.map((digit, index) => (
                                 <input
                                     key={index}
@@ -152,7 +152,7 @@ export function OTPVerificationScreen({ email, onVerified, onBack }: OTPVerifica
                                     value={digit}
                                     onChange={(e) => handleChange(index, e.target.value)}
                                     onKeyDown={(e) => handleKeyDown(index, e)}
-                                    className="w-12 h-14 text-center text-2xl font-bold border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
+                                    className="w-10 h-12 sm:w-12 sm:h-14 text-center text-xl sm:text-2xl font-bold border-2 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all"
                                     disabled={loading}
                                 />
                             ))}
