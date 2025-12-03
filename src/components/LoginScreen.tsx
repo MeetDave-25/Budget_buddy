@@ -18,6 +18,25 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const handleResetPassword = async () => {
+    if (!email) {
+      toast.error('Please enter your email address first');
+      return;
+    }
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: window.location.origin,
+      });
+      if (error) throw error;
+      toast.success('Password reset email sent! Check your inbox.');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to send reset email');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleAuth = async () => {
     setLoading(true);
     try {
@@ -107,6 +126,17 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {!isSignup && (
+              <div className="text-right -mt-2">
+                <button
+                  onClick={handleResetPassword}
+                  className="text-xs text-blue-600 hover:underline"
+                  type="button"
+                >
+                  Forgot Password?
+                </button>
+              </div>
+            )}
             {isSignup && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
