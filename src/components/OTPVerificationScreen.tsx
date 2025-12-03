@@ -13,7 +13,7 @@ interface OTPVerificationScreenProps {
 }
 
 export function OTPVerificationScreen({ email, onVerified, onBack }: OTPVerificationScreenProps) {
-    const [otp, setOtp] = useState(['', '', '', '', '', '']);
+    const [otp, setOtp] = useState(['', '', '', '', '', '', '', '']);
     const [loading, setLoading] = useState(false);
     const [resendLoading, setResendLoading] = useState(false);
     const [countdown, setCountdown] = useState(60);
@@ -39,12 +39,12 @@ export function OTPVerificationScreen({ email, onVerified, onBack }: OTPVerifica
         setOtp(newOtp);
 
         // Auto-focus next input
-        if (value && index < 5) {
+        if (value && index < 7) {
             inputRefs.current[index + 1]?.focus();
         }
 
-        // Auto-verify when all 6 digits are entered
-        if (newOtp.every(digit => digit !== '') && index === 5) {
+        // Auto-verify when all 8 digits are entered
+        if (newOtp.every(digit => digit !== '') && index === 7) {
             verifyOTP(newOtp.join(''));
         }
     };
@@ -58,14 +58,14 @@ export function OTPVerificationScreen({ email, onVerified, onBack }: OTPVerifica
 
     const handlePaste = (e: React.ClipboardEvent) => {
         e.preventDefault();
-        const pastedData = e.clipboardData.getData('text').slice(0, 6);
+        const pastedData = e.clipboardData.getData('text').slice(0, 8);
         if (!/^\d+$/.test(pastedData)) return;
 
-        const newOtp = pastedData.split('').concat(Array(6 - pastedData.length).fill(''));
+        const newOtp = pastedData.split('').concat(Array(8 - pastedData.length).fill(''));
         setOtp(newOtp);
 
         // Focus last filled input or verify if complete
-        if (pastedData.length === 6) {
+        if (pastedData.length === 8) {
             verifyOTP(pastedData);
         } else {
             inputRefs.current[pastedData.length]?.focus();
@@ -134,7 +134,7 @@ export function OTPVerificationScreen({ email, onVerified, onBack }: OTPVerifica
                         </motion.div>
                         <h2 className="text-2xl font-bold mb-2">Verify Your Email</h2>
                         <p className="text-sm text-muted-foreground">
-                            We sent a 6-digit code to
+                            We sent a 8-digit code to
                         </p>
                         <p className="text-sm font-semibold text-foreground mt-1">{email}</p>
                     </div>
