@@ -143,9 +143,7 @@ export default function App() {
     }
   };
 
-  const handleLogin = () => {
-    // Auth state change listener will handle this
-  };
+
 
   const handleOnboardingComplete = async (monthlyIncome: number, totalBudget: number) => {
     console.log('Starting onboarding with:', { monthlyIncome, totalBudget });
@@ -354,7 +352,7 @@ export default function App() {
   }
 
   if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} onSignupSuccess={setPendingVerificationEmail} />;
+    return <LoginScreen onLogin={() => { }} onSignupSuccess={setPendingVerificationEmail} />;
   }
 
   if (pendingVerificationEmail) {
@@ -362,8 +360,8 @@ export default function App() {
       <OTPVerificationScreen
         email={pendingVerificationEmail}
         onVerified={() => {
+          // Clear pending email and let auth state listener handle login
           setPendingVerificationEmail(null);
-          handleLogin();
         }}
         onBack={() => {
           setPendingVerificationEmail(null);
