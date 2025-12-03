@@ -141,7 +141,7 @@ export function OTPVerificationScreen({ email, onVerified, onBack }: OTPVerifica
 
                     <div className="space-y-6">
                         {/* OTP Input */}
-                        <div className="flex justify-center gap-1 sm:gap-2" onPaste={handlePaste}>
+                        <div className="flex flex-wrap justify-center gap-2" onPaste={handlePaste}>
                             {otp.map((digit, index) => (
                                 <input
                                     key={index}
