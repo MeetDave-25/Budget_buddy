@@ -123,7 +123,12 @@ export default function App() {
           currentStreak: streakData.currentStreak,
           longestStreak: streakData.longestStreak,
         });
-        setIsOnboarded(true);
+        // Check if user has completed onboarding (has set budget or income)
+        if (profile.total_budget > 0 || profile.monthly_income > 0) {
+          setIsOnboarded(true);
+        } else {
+          setIsOnboarded(false);
+        }
       } else {
         setIsOnboarded(false);
       }
