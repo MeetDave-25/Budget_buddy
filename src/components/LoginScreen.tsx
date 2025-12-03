@@ -49,6 +49,7 @@ export function LoginScreen({ onLogin, onSignupSuccess }: LoginScreenProps) {
         }
 
         // Sign up the user
+        console.log('Attempting signup with:', { email, password: '***', emailLength: email.length, passwordLength: password.length });
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -57,6 +58,7 @@ export function LoginScreen({ onLogin, onSignupSuccess }: LoginScreenProps) {
           }
         });
 
+        console.log('Signup response:', { data, error });
         if (error) throw error;
 
         // Check if email confirmation is required
@@ -82,6 +84,13 @@ export function LoginScreen({ onLogin, onSignupSuccess }: LoginScreenProps) {
         onLogin();
       }
     } catch (error: any) {
+      console.error('Authentication error:', error);
+      console.error('Error details:', {
+        message: error.message,
+        status: error.status,
+        code: error.code,
+        details: error
+      });
       toast.error(error.message || 'Authentication failed');
     } finally {
       setLoading(false);

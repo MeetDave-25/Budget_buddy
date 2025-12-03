@@ -351,10 +351,6 @@ export default function App() {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
 
-  if (!isLoggedIn) {
-    return <LoginScreen onLogin={() => { }} onSignupSuccess={setPendingVerificationEmail} />;
-  }
-
   if (pendingVerificationEmail) {
     return (
       <OTPVerificationScreen
@@ -368,6 +364,10 @@ export default function App() {
         }}
       />
     );
+  }
+
+  if (!isLoggedIn) {
+    return <LoginScreen onLogin={() => { }} onSignupSuccess={setPendingVerificationEmail} />;
   }
 
   if (!isOnboarded) {
