@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { LoginScreen } from './components/LoginScreen';
+import { OTPVerificationScreen } from './components/OTPVerificationScreen';
 import { OnboardingScreen } from './components/OnboardingScreen';
 import { Dashboard } from './components/Dashboard';
 import { ExpenseScreen } from './components/ExpenseScreen';
@@ -21,6 +22,7 @@ export default function App() {
   const [userData, setUserData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [configError, setConfigError] = useState(false);
+  const [pendingVerificationEmail, setPendingVerificationEmail] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured()) {
@@ -352,7 +354,22 @@ export default function App() {
   }
 
   if (!isLoggedIn) {
-    return <LoginScreen onLogin={handleLogin} />;
+    return <LoginScreen onLogin={handleLogin} onSignupSuccess={setPendingVerificationEmail} />;
+  }
+
+  if (pendingVerificationEmail) {
+    return (
+      <OTPVerificationScreen
+        email={pendingVerificationEmail}
+        onVerified={() => {
+          setPendingVerificationEmail(null);
+          handleLogin();
+        }}
+        onBack={() => {
+          setPendingVerificationEmail(null);
+        }}
+      />
+    );
   }
 
   if (!isOnboarded) {

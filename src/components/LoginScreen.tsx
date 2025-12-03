@@ -9,9 +9,10 @@ import { toast } from 'sonner';
 
 interface LoginScreenProps {
   onLogin: () => void;
+  onSignupSuccess?: (email: string) => void;
 }
 
-export function LoginScreen({ onLogin }: LoginScreenProps) {
+export function LoginScreen({ onLogin, onSignupSuccess }: LoginScreenProps) {
   const [isSignup, setIsSignup] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -60,8 +61,12 @@ export function LoginScreen({ onLogin }: LoginScreenProps) {
 
         // Check if email confirmation is required
         if (data?.user && !data.session) {
-          toast.success('Signup successful! Please check your email to confirm your account.');
-          setIsSignup(false); // Switch to login mode
+          toast.success('Verification code sent to your email!');
+          if (onSignupSuccess) {
+            onSignupSuccess(email);
+          } else {
+            setIsSignup(false); // Fallback: Switch to login mode
+          }
         } else if (data?.session) {
           // Auto-login successful (email confirmation disabled)
           toast.success('Welcome to BudgetBuddy! 🎉');
