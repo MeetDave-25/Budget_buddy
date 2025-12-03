@@ -407,7 +407,7 @@ export default function App() {
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
       />
-      <Toaster />
+      <Toaster position="top-center" richColors closeButton duration={2000} />
     </div>
   );
 }
