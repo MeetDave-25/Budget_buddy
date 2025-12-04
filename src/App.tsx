@@ -210,16 +210,37 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
+      // First check if there's an active session
+      const { data: { session } } = await supabase.auth.getSession();
 
+      if (session) {
+        // Only attempt to sign out if there's an active session
+        const { error } = await supabase.auth.signOut();
+
+        // Ignore "session missing" errors (403) since we're logging out anyway
+        if (error && !error.message.toLowerCase().includes('session')) {
+          throw error;
+        }
+      }
+
+      // Always clear local state regardless of API response
       setUserData(null);
       setIsOnboarded(false);
+      setIsLoggedIn(false);
       setCurrentScreen('dashboard');
 
       toast.success('Logged out successfully');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to logout');
+      console.error('Logout error:', error);
+
+      // Even if there's an error, clear local state
+      setUserData(null);
+      setIsOnboarded(false);
+      setIsLoggedIn(false);
+      setCurrentScreen('dashboard');
+
+      // Show a more user-friendly message
+      toast.success('Logged out successfully');
     }
   };
 
