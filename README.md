@@ -26,7 +26,7 @@ A beautiful, feature-rich budget tracking application built with React, TypeScri
 
 ## 🚀 Live Demo
 
-[View Live App](https://your-app-url.vercel.app) _(Add your deployed URL here)_
+[View Live App](https://budget-buddy-bb-chi.vercel.app/)
 
 ## 📸 Screenshots
 
@@ -46,7 +46,7 @@ _Coming soon..._
 I welcome contributions! Here's how:
 
 1. **Fork this repository** (creates your own copy)
-2. **Create a feature branch** (`git checkout -b feature/AmazingFeature`)
+2. **Create a feature branch** (`git checkout -b feature AmazingFeature`)
 3. **Make your changes** (in your fork)
 4. **Commit your changes** (`git commit -m 'Add some AmazingFeature'`)
 5. **Push to your branch** (`git push origin feature/AmazingFeature`)
@@ -64,7 +64,7 @@ I welcome contributions! Here's how:
 
 ## ⚖️ License & Copyright
 
-**Copyright © 2024 Meet G. Dave. All Rights Reserved.**
+**Copyright © 2025 Meet G. Dave. All Rights Reserved.**
 
 This code is provided for **viewing and educational purposes only**. 
 
