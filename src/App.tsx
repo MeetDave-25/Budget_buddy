@@ -210,20 +210,11 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      // First check if there's an active session
-      const { data: { session } } = await supabase.auth.getSession();
+      // Use 'local' scope to clear session from browser storage only
+      // This avoids 403 errors when the server session is already expired
+      await supabase.auth.signOut({ scope: 'local' });
 
-      if (session) {
-        // Only attempt to sign out if there's an active session
-        const { error } = await supabase.auth.signOut();
-
-        // Ignore "session missing" errors (403) since we're logging out anyway
-        if (error && !error.message.toLowerCase().includes('session')) {
-          throw error;
-        }
-      }
-
-      // Always clear local state regardless of API response
+      // Clear all local state
       setUserData(null);
       setIsOnboarded(false);
       setIsLoggedIn(false);
@@ -239,7 +230,6 @@ export default function App() {
       setIsLoggedIn(false);
       setCurrentScreen('dashboard');
 
-      // Show a more user-friendly message
       toast.success('Logged out successfully');
     }
   };
