@@ -21,11 +21,11 @@ create policy "Public profiles are viewable by everyone."
 
 create policy "Users can insert their own profile."
   on profiles for insert
-  with check ( auth.uid() = id );
+  with check ( (select auth.uid()) = id );
 
 create policy "Users can update own profile."
   on profiles for update
-  using ( auth.uid() = id );
+  using ( (select auth.uid()) = id );
 
 -- Create a table for categories
 create table categories (
@@ -42,19 +42,19 @@ alter table categories enable row level security;
 
 create policy "Users can view their own categories."
   on categories for select
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 create policy "Users can insert their own categories."
   on categories for insert
-  with check ( auth.uid() = user_id );
+  with check ( (select auth.uid()) = user_id );
 
 create policy "Users can update their own categories."
   on categories for update
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 create policy "Users can delete their own categories."
   on categories for delete
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 -- Create a table for expenses
 create table expenses (
@@ -72,19 +72,19 @@ alter table expenses enable row level security;
 
 create policy "Users can view their own expenses."
   on expenses for select
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 create policy "Users can insert their own expenses."
   on expenses for insert
-  with check ( auth.uid() = user_id );
+  with check ( (select auth.uid()) = user_id );
 
 create policy "Users can update their own expenses."
   on expenses for update
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 create policy "Users can delete their own expenses."
   on expenses for delete
-  using ( auth.uid() = user_id );
+  using ( (select auth.uid()) = user_id );
 
 -- Function to handle new user signup
 create or replace function public.handle_new_user()
