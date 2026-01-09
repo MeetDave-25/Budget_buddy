@@ -1,4 +1,4 @@
-import { Home, PlusCircle, BarChart3, Lightbulb, Settings } from 'lucide-react';
+import { Home, PlusCircle, BarChart3, MessageCircle, Settings } from 'lucide-react';
 
 interface BottomNavProps {
   currentScreen: string;
@@ -10,7 +10,7 @@ export function BottomNav({ currentScreen, onNavigate }: BottomNavProps) {
     { id: 'dashboard', label: 'Home', icon: Home },
     { id: 'expenses', label: 'Expenses', icon: PlusCircle },
     { id: 'reports', label: 'Reports', icon: BarChart3 },
-    { id: 'ai', label: 'AI Tips', icon: Lightbulb },
+    { id: 'ai', label: 'AI Chat', icon: MessageCircle },
     { id: 'settings', label: 'Budget', icon: Settings },
   ];
 
