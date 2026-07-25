@@ -5,9 +5,9 @@ import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Badge } from './ui/badge';
 import { CategoryIcon } from './CategoryIcon';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState } from 'react';
-import { Upload, Filter, ArrowUpDown, Pencil, Trash2 } from 'lucide-react';
+import { Upload, Filter, ArrowUpDown, Pencil, Trash2, Plus, Receipt } from 'lucide-react';
 
 interface ExpenseScreenProps {
   userData: any;
@@ -25,7 +25,7 @@ export function ExpenseScreen({ userData, onAddExpense, onUpdateExpense, onDelet
   const [filterCategory, setFilterCategory] = useState('All');
   const [sortBy, setSortBy] = useState('date');
 
-  // Edit form state
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editAmount, setEditAmount] = useState('');
   const [editCategory, setEditCategory] = useState('');
   const [editDate, setEditDate] = useState('');
@@ -48,9 +48,6 @@ export function ExpenseScreen({ userData, onAddExpense, onUpdateExpense, onDelet
     }
   };
 
-  // Track which expense is being edited (null = none)
-  const [editingId, setEditingId] = useState<string | null>(null);
-
   const handleEditClick = (expense: any) => {
     setEditingId(expense.id);
     setEditAmount(expense.amount.toString());
@@ -72,9 +69,7 @@ export function ExpenseScreen({ userData, onAddExpense, onUpdateExpense, onDelet
     }
   };
 
-  const handleEditCancel = () => {
-    setEditingId(null);
-  };
+  const handleEditCancel = () => setEditingId(null);
 
   const handleDeleteClick = (expenseId: string) => {
     if (window.confirm('Are you sure you want to delete this expense? This action cannot be undone.')) {
@@ -93,251 +88,270 @@ export function ExpenseScreen({ userData, onAddExpense, onUpdateExpense, onDelet
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50 pb-24">
-      <div className="max-w-md mx-auto p-4 space-y-4">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="pt-4"
-        >
-          <h1 className="text-2xl mb-1">Track Expenses 💸</h1>
-          <p className="text-muted-foreground text-sm">Add and manage your spending</p>
-        </motion.div>
+    <div className="space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-primary/20 rounded-lg">
+            <Receipt className="w-6 h-6 text-primary" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight">Transactions</h1>
+        </div>
+        <p className="text-muted-foreground">Manage and track your expenses</p>
+      </motion.div>
 
-        {/* Add Expense Form */}
-        {showForm && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-          >
-            <Card className="p-6">
-              <h3 className="mb-4">Add New Expense</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block mb-2 text-sm">Amount (₹)</label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    className="text-xl"
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm">Category</label>
-                  <Select value={category} onValueChange={setCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {userData.categories.map((cat: any) => (
-                        <SelectItem key={cat.name} value={cat.name}>
-                          <div className="flex items-center gap-2">
-                            <CategoryIcon category={cat.name} className="w-4 h-4" />
-                            {cat.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm">Date</label>
-                  <Input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block mb-2 text-sm">Notes (optional)</label>
-                  <Textarea
-                    placeholder="E.g., Lunch at campus cafeteria"
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    rows={2}
-                  />
-                </div>
-                <div className="border-2 border-dashed border-border rounded-lg p-4 text-center">
-                  <Upload className="w-6 h-6 mx-auto mb-2 text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Upload Receipt (Coming Soon)</p>
-                </div>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={!amount || !category}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                >
-                  Add Expense
-                </Button>
-              </div>
-            </Card>
-          </motion.div>
-        )}
-
-        {/* Filters */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-          className="flex gap-2"
-        >
-          <Select value={filterCategory} onValueChange={setFilterCategory}>
-            <SelectTrigger className="flex-1">
-              <Filter className="w-4 h-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All Categories</SelectItem>
-              {userData.categories.map((cat: any) => (
-                <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="flex-1">
-              <ArrowUpDown className="w-4 h-4 mr-2" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="date">Sort by Date</SelectItem>
-              <SelectItem value="amount">Sort by Amount</SelectItem>
-            </SelectContent>
-          </Select>
-        </motion.div>
-
-        {/* Expense List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="p-6">
-            <h3 className="mb-4">All Expenses ({sortedExpenses.length})</h3>
-            <div className="space-y-3">
-              {sortedExpenses.map((expense: any, i: number) => (
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Add Expense Form (Sticky on Desktop) */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-24">
+            <AnimatePresence mode="wait">
+              {showForm && (
                 <motion.div
-                  key={expense.id || i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 + i * 0.05 }}
-                  className="p-3 rounded-lg hover:bg-accent transition-colors"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  {editingId === expense.id ? (
-                    // INLINE EDIT FORM
-                    <div className="space-y-3">
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="text-xs text-muted-foreground">Amount</label>
+                  <Card className="p-6 glass-card border-primary/20">
+                    <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+                      <Plus className="w-5 h-5 text-primary" />
+                      New Transaction
+                    </h3>
+                    
+                    <div className="space-y-5">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-white/80">Amount</label>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/50 font-medium">₹</span>
                           <Input
                             type="number"
-                            value={editAmount}
-                            onChange={(e) => setEditAmount(e.target.value)}
-                            className="h-8"
+                            placeholder="0.00"
+                            value={amount}
+                            onChange={(e) => setAmount(e.target.value)}
+                            className="pl-8 h-12 text-lg font-semibold bg-white/5 border-white/10"
                           />
                         </div>
-                        <div>
-                          <label className="text-xs text-muted-foreground">Category</label>
-                          <Select value={editCategory} onValueChange={setEditCategory}>
-                            <SelectTrigger className="h-8">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {userData.categories.map((cat: any) => (
-                                <SelectItem key={cat.name} value={cat.name}>
-                                  {cat.name}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground">Date</label>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-white/80">Category</label>
+                        <Select value={category} onValueChange={setCategory}>
+                          <SelectTrigger className="h-12 bg-white/5 border-white/10">
+                            <SelectValue placeholder="Select category" />
+                          </SelectTrigger>
+                          <SelectContent className="glass-card border-white/10">
+                            {userData.categories.map((cat: any) => (
+                              <SelectItem key={cat.name} value={cat.name} className="focus:bg-white/10">
+                                <div className="flex items-center gap-2">
+                                  <CategoryIcon category={cat.name} className="w-4 h-4" />
+                                  {cat.name}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-white/80">Date</label>
                         <Input
                           type="date"
-                          value={editDate}
-                          onChange={(e) => setEditDate(e.target.value)}
-                          className="h-8"
+                          value={date}
+                          onChange={(e) => setDate(e.target.value)}
+                          className="h-12 bg-white/5 border-white/10"
                         />
                       </div>
-                      <div>
-                        <label className="text-xs text-muted-foreground">Notes</label>
-                        <Input
-                          value={editNotes}
-                          onChange={(e) => setEditNotes(e.target.value)}
-                          placeholder="Optional notes..."
-                          className="h-8"
+
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium text-white/80">Notes</label>
+                        <Textarea
+                          placeholder="What was this for?"
+                          value={notes}
+                          onChange={(e) => setNotes(e.target.value)}
+                          className="bg-white/5 border-white/10 resize-none"
+                          rows={3}
                         />
                       </div>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          onClick={() => handleEditSubmit(expense.id)}
-                          disabled={!editAmount || !editCategory}
-                          className="flex-1"
-                        >
-                          Save
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={handleEditCancel}
-                          className="flex-1"
-                        >
-                          Cancel
-                        </Button>
+
+                      <div className="border border-dashed border-white/20 rounded-xl p-4 text-center cursor-pointer hover:bg-white/5 transition-colors group">
+                        <Upload className="w-5 h-5 mx-auto mb-2 text-white/50 group-hover:text-primary transition-colors" />
+                        <p className="text-xs text-white/50 font-medium">Upload Receipt (Optional)</p>
                       </div>
+
+                      <Button
+                        onClick={handleSubmit}
+                        disabled={!amount || !category}
+                        className="w-full h-12 text-base font-semibold shadow-[0_0_20px_rgba(14,165,233,0.3)] hover:shadow-[0_0_30px_rgba(14,165,233,0.5)]"
+                      >
+                        Save Transaction
+                      </Button>
                     </div>
-                  ) : (
-                    // NORMAL VIEW
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-start gap-3 flex-1">
-                        <div className={`p-2 rounded-lg ${expense.categoryColor} mt-1`}>
-                          <CategoryIcon category={expense.category} className="w-4 h-4" />
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Expense List */}
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Select value={filterCategory} onValueChange={setFilterCategory}>
+              <SelectTrigger className="w-full sm:w-[200px] bg-white/5 border-white/10 backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4 text-primary" />
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="glass-card border-white/10">
+                <SelectItem value="All">All Categories</SelectItem>
+                {userData.categories.map((cat: any) => (
+                  <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-full sm:w-[200px] bg-white/5 border-white/10 backdrop-blur-md">
+                <div className="flex items-center gap-2">
+                  <ArrowUpDown className="w-4 h-4 text-primary" />
+                  <SelectValue />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="glass-card border-white/10">
+                <SelectItem value="date">Sort by Date</SelectItem>
+                <SelectItem value="amount">Sort by Amount</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Card className="p-2 sm:p-6 glass-card">
+            <div className="flex justify-between items-center mb-6 px-2 sm:px-0">
+              <h3 className="text-lg font-semibold">Transaction History</h3>
+              <Badge variant="outline" className="bg-white/5 border-white/10">{sortedExpenses.length} Total</Badge>
+            </div>
+            
+            <div className="space-y-2">
+              <AnimatePresence>
+                {sortedExpenses.map((expense: any, i: number) => (
+                  <motion.div
+                    key={expense.id || i}
+                    layout
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="p-4 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 transition-all group"
+                  >
+                    {editingId === expense.id ? (
+                      <div className="space-y-4 p-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div className="space-y-1">
+                            <label className="text-xs text-white/50">Amount</label>
+                            <Input
+                              type="number"
+                              value={editAmount}
+                              onChange={(e) => setEditAmount(e.target.value)}
+                              className="bg-white/5 border-white/10"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-white/50">Category</label>
+                            <Select value={editCategory} onValueChange={setEditCategory}>
+                              <SelectTrigger className="bg-white/5 border-white/10">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="glass-card border-white/10">
+                                {userData.categories.map((cat: any) => (
+                                  <SelectItem key={cat.name} value={cat.name}>{cat.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-white/50">Date</label>
+                            <Input
+                              type="date"
+                              value={editDate}
+                              onChange={(e) => setEditDate(e.target.value)}
+                              className="bg-white/5 border-white/10"
+                            />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="text-xs text-white/50">Notes</label>
+                            <Input
+                              value={editNotes}
+                              onChange={(e) => setEditNotes(e.target.value)}
+                              placeholder="Optional notes..."
+                              className="bg-white/5 border-white/10"
+                            />
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium mb-1">{expense.notes || expense.category}</p>
-                          <div className="flex gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {expense.category}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">{expense.date}</span>
+                        <div className="flex gap-3 justify-end mt-4">
+                          <Button variant="ghost" onClick={handleEditCancel} className="text-white/70">Cancel</Button>
+                          <Button onClick={() => handleEditSubmit(expense.id)} disabled={!editAmount || !editCategory}>Save Changes</Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex justify-between items-center sm:items-start gap-4">
+                        <div className="flex items-center sm:items-start gap-4 flex-1">
+                          <div className={`p-3 rounded-xl bg-white/10 flex-shrink-0`}>
+                            <CategoryIcon category={expense.category} className="w-5 h-5 text-white" />
+                          </div>
+                          <div className="flex flex-col">
+                            <p className="text-base font-medium text-white line-clamp-1">{expense.notes || expense.category}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="text-xs px-2 py-0.5 rounded-md bg-white/10 text-white/70">{expense.category}</span>
+                              <span className="text-xs text-white/40">{new Date(expense.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-end gap-2">
+                          <p className="text-lg font-bold text-white whitespace-nowrap">-₹{expense.amount.toLocaleString()}</p>
+                          <div className="flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-8 h-8 hover:bg-white/10"
+                              onClick={() => handleEditClick(expense)}
+                            >
+                              <Pencil className="w-4 h-4 text-white/70" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="w-8 h-8 hover:bg-destructive/20 hover:text-destructive"
+                              onClick={() => handleDeleteClick(expense.id)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-sm font-semibold">₹{expense.amount}</p>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleEditClick(expense)}
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
-                            onClick={() => handleDeleteClick(expense.id)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </motion.div>
-              ))}
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              
               {sortedExpenses.length === 0 && (
-                <p className="text-center text-muted-foreground py-8">No expenses yet</p>
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="w-16 h-16 mb-4 rounded-2xl bg-white/5 flex items-center justify-center border border-white/10">
+                    <Receipt className="w-8 h-8 text-white/20" />
+                  </div>
+                  <h4 className="text-lg font-medium text-white/90 mb-1">No transactions found</h4>
+                  <p className="text-sm text-white/50 max-w-[250px]">
+                    {filterCategory !== 'All' 
+                      ? `You haven't added any ${filterCategory} expenses yet.`
+                      : "Start adding your expenses to track your spending habits."}
+                  </p>
+                </div>
               )}
             </div>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

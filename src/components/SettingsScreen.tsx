@@ -4,12 +4,11 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Alert, AlertDescription } from './ui/alert';
 import { CategoryIcon } from './CategoryIcon';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { useState } from 'react';
-import { Settings, AlertCircle, Trophy, Flame, Award, Star } from 'lucide-react';
+import { Settings, AlertCircle, Trophy, Flame, Award, Star, LogOut, Check } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { toast } from 'sonner';
-
 
 interface SettingsScreenProps {
   userData: any;
@@ -27,7 +26,6 @@ export function SettingsScreen({ userData, onUpdateBudget, onLogout }: SettingsS
 
   const handleCategoryLimitChange = (index: number, newLimit: string) => {
     const updated = [...categories];
-    // Allow empty string, otherwise convert to number
     updated[index] = { ...updated[index], limit: newLimit === '' ? '' : Number(newLimit) || 0 };
     setCategories(updated);
   };
@@ -35,12 +33,14 @@ export function SettingsScreen({ userData, onUpdateBudget, onLogout }: SettingsS
   const handleSaveBudget = () => {
     onUpdateBudget(Number(totalBudget), userData.categories);
     setShowBudgetSuccess(true);
+    toast.success('Total budget updated successfully');
     setTimeout(() => setShowBudgetSuccess(false), 3000);
   };
 
   const handleSaveCategories = () => {
     onUpdateBudget(userData.totalBudget, categories);
     setShowCategorySuccess(true);
+    toast.success('Category limits updated successfully');
     setTimeout(() => setShowCategorySuccess(false), 3000);
   };
 
@@ -57,264 +57,251 @@ export function SettingsScreen({ userData, onUpdateBudget, onLogout }: SettingsS
       if (error) throw error;
 
       setShowIncomeSuccess(true);
-      setTimeout(() => setShowIncomeSuccess(false), 3000);
       toast.success('Monthly income updated!');
+      setTimeout(() => setShowIncomeSuccess(false), 3000);
     } catch (error: any) {
       toast.error(error.message || 'Failed to update income');
     }
   };
 
-  const totalCategoryLimits = categories.reduce((sum: number, cat: any) => sum + cat.limit, 0);
+  const totalCategoryLimits = categories.reduce((sum: number, cat: any) => sum + Number(cat.limit || 0), 0);
   const isOverBudget = totalCategoryLimits > Number(totalBudget);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-green-50 pb-24">
-      <div className="max-w-md mx-auto p-4 space-y-4">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="pt-4"
-        >
-          <h1 className="text-2xl mb-1">Budget Settings ⚙️</h1>
-          <p className="text-muted-foreground text-sm">Manage your budget and limits</p>
-        </motion.div>
+    <div className="space-y-6">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <div className="flex items-center gap-3 mb-2">
+          <div className="p-2 bg-primary/20 rounded-lg">
+            <Settings className="w-6 h-6 text-primary" />
+          </div>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
+        </div>
+        <p className="text-muted-foreground">Manage your budget limits and account</p>
+      </motion.div>
 
-
-
-        {/* Total Budget */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-        >
-          <Card className="p-6">
-            <h3 className="mb-4 flex items-center gap-2">
-              <Settings className="w-5 h-5 text-blue-600" />
-              Monthly Budget
-            </h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block mb-2 text-sm">Total Budget (₹)</label>
-                <Input
-                  type="number"
-                  value={totalBudget}
-                  onChange={(e) => setTotalBudget(e.target.value)}
-                  className="text-xl"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleSaveBudget}
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                >
-                  Save Budget
-                </Button>
-                {showBudgetSuccess && (
-                  <span className="text-sm text-green-600 flex items-center gap-1">✅ Saved!</span>
-                )}
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Category Limits */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <Card className="p-6">
-            <h3 className="mb-4">Category-wise Limits</h3>
-            <div className="space-y-4">
-              {categories.map((cat: any, i: number) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + i * 0.05 }}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center gap-2">
-                    <div className={`p-2 rounded-lg ${cat.color}`}>
-                      <CategoryIcon category={cat.name} className="w-4 h-4" />
-                    </div>
-                    <label className="flex-1 text-sm">{cat.name}</label>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Monthly Income & Total Budget */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="p-6 glass-card h-full">
+                <h3 className="text-lg font-semibold mb-4">Monthly Income</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-white/80">Monthly Income (₹)</label>
+                    <Input
+                      type="number"
+                      value={monthlyIncome}
+                      onChange={(e) => setMonthlyIncome(e.target.value)}
+                      className="h-12 text-lg font-semibold bg-white/5 border-white/10"
+                    />
                   </div>
-                  <Input
-                    type="number"
-                    value={cat.limit === '' ? '' : cat.limit}
-                    onChange={(e) => handleCategoryLimitChange(i, e.target.value)}
-                    placeholder="Set limit"
-                  />
-                  {cat.spent > cat.limit && (
-                    <p className="text-xs text-red-600">
-                      ⚠️ Currently over budget by ₹{cat.spent - cat.limit}
-                    </p>
-                  )}
-                </motion.div>
-              ))}
-            </div>
+                  <Button
+                    onClick={handleSaveIncome}
+                    className="w-full h-11"
+                    variant={showIncomeSuccess ? "outline" : "default"}
+                  >
+                    {showIncomeSuccess ? <><Check className="w-4 h-4 mr-2 text-emerald-400" /> Saved</> : 'Save Income'}
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
 
-            <div className="mt-6 p-4 rounded-lg bg-muted">
-              <div className="flex justify-between text-sm mb-2">
-                <span>Total Category Limits:</span>
-                <span className={isOverBudget ? 'text-red-600' : ''}>
-                  ₹{totalCategoryLimits.toLocaleString()}
-                </span>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="p-6 glass-card h-full">
+                <h3 className="text-lg font-semibold mb-4">Monthly Budget</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-white/80">Total Budget (₹)</label>
+                    <Input
+                      type="number"
+                      value={totalBudget}
+                      onChange={(e) => setTotalBudget(e.target.value)}
+                      className="h-12 text-lg font-semibold bg-white/5 border-white/10"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleSaveBudget}
+                    className="w-full h-11"
+                    variant={showBudgetSuccess ? "outline" : "default"}
+                  >
+                    {showBudgetSuccess ? <><Check className="w-4 h-4 mr-2 text-emerald-400" /> Saved</> : 'Save Budget'}
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Category Limits */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <Card className="p-6 glass-card">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h3 className="text-lg font-semibold">Category Limits</h3>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex flex-col text-right">
+                    <span className="text-muted-foreground">Total Limits</span>
+                    <span className={`font-bold ${isOverBudget ? 'text-destructive' : 'text-emerald-400'}`}>
+                      ₹{totalCategoryLimits.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex flex-col text-right">
+                    <span className="text-muted-foreground">Budget</span>
+                    <span className="font-bold text-white">₹{Number(totalBudget).toLocaleString()}</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span>Monthly Budget:</span>
-                <span>₹{Number(totalBudget).toLocaleString()}</span>
-              </div>
+
               {isOverBudget && (
-                <Alert className="mt-3 border-red-200 bg-red-50">
-                  <AlertCircle className="h-4 w-4 text-red-600" />
-                  <AlertDescription className="text-red-800 text-sm">
-                    Category limits exceed total budget by ₹{totalCategoryLimits - Number(totalBudget)}!
+                <Alert className="mb-6 bg-destructive/10 border-destructive/20 text-destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    Warning: Your category limits exceed your total monthly budget.
                   </AlertDescription>
                 </Alert>
               )}
-            </div>
 
-            <div className="mt-4 flex gap-2">
-              <Button
-                onClick={handleSaveCategories}
-                size="sm"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-              >
-                Save Category Limits
-              </Button>
-              {showCategorySuccess && (
-                <span className="text-sm text-green-600 flex items-center gap-1">✅ Saved!</span>
-              )}
-            </div>
-          </Card>
-        </motion.div>
-
-        {/* Gamification - Badges & Streaks */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Card className="p-6 bg-gradient-to-br from-yellow-50 to-orange-50 border-yellow-200">
-            <h3 className="mb-4 flex items-center gap-2">
-              <Trophy className="w-5 h-5 text-yellow-600" />
-              Your Achievements
-            </h3>
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-orange-100">
-                  <Flame className="w-6 h-6 text-orange-600" />
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {categories.map((cat: any, i: number) => (
+                    <div key={i} className="p-4 rounded-xl bg-white/5 border border-white/10 flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`p-2 rounded-lg bg-white/10`}>
+                            <CategoryIcon category={cat.name} className="w-4 h-4 text-white" />
+                          </div>
+                          <span className="font-medium text-white">{cat.name}</span>
+                        </div>
+                        {cat.spent > (cat.limit || 0) && (
+                          <Badge variant="destructive" className="text-[10px]">Over Budget</Badge>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">₹</span>
+                        <Input
+                          type="number"
+                          value={cat.limit === '' ? '' : cat.limit}
+                          onChange={(e) => handleCategoryLimitChange(i, e.target.value)}
+                          placeholder="Set limit"
+                          className="bg-transparent border-b border-white/20 rounded-none px-0 h-8 focus-visible:ring-0 focus-visible:border-primary text-white"
+                        />
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <p className="text-sm mb-1">Saving Streak</p>
-                  <p className="text-2xl text-orange-700">
-                    {userData.currentStreak || 0} days {userData.currentStreak > 0 && '🔥'}
-                  </p>
+
+                <div className="pt-4 border-t border-white/10 flex justify-end">
+                  <Button
+                    onClick={handleSaveCategories}
+                    className="w-full sm:w-auto h-11"
+                    variant={showCategorySuccess ? "outline" : "default"}
+                  >
+                    {showCategorySuccess ? <><Check className="w-4 h-4 mr-2 text-emerald-400" /> Limits Saved</> : 'Save Limits'}
+                  </Button>
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-2">
-                {userData.badges && userData.badges.length > 0 ? (
-                  <>
-                    {userData.badges.map((badge: string, i: number) => (
-                      <motion.div
-                        key={i}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ delay: 0.6 + i * 0.1 }}
-                        className="p-3 rounded-lg bg-white text-center shadow-sm"
-                      >
-                        <Award className="w-6 h-6 mx-auto mb-1 text-yellow-600" />
-                        <p className="text-xs font-medium">{badge}</p>
-                      </motion.div>
-                    ))}
-                    {/* Show locked slots for remaining badges */}
-                    {[...Array(Math.max(0, 6 - userData.badges.length))].map((_, i) => (
-                      <div key={`locked-${i}`} className="p-3 rounded-lg bg-white text-center opacity-50">
-                        <Star className="w-6 h-6 mx-auto mb-1 text-gray-400" />
-                        <p className="text-xs">Locked</p>
-                      </div>
-                    ))}
-                  </>
-                ) : (
-                  <div className="col-span-3 text-center py-4">
-                    <p className="text-sm text-muted-foreground">
-                      🎯 Start tracking expenses to earn badges!
+            </Card>
+          </motion.div>
+        </div>
+
+        {/* Gamification & Account */}
+        <div className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <Card className="p-6 glass-card border-amber-500/20 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-[40px] pointer-events-none" />
+              
+              <h3 className="mb-6 flex items-center gap-2 text-lg font-semibold text-amber-100">
+                <Trophy className="w-5 h-5 text-amber-400" />
+                Achievements
+              </h3>
+              
+              <div className="space-y-6 relative z-10">
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  <div className="p-3 rounded-full bg-amber-500/20">
+                    <Flame className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-amber-200/70 mb-0.5">Saving Streak</p>
+                    <p className="text-2xl font-bold text-amber-400">
+                      {userData.currentStreak || 0} Days {userData.currentStreak > 0 && '🔥'}
                     </p>
                   </div>
-                )}
+                </div>
+
+                <div>
+                  <p className="text-sm font-medium text-white/70 mb-3">Badges Earned</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    {userData.badges && userData.badges.length > 0 ? (
+                      <>
+                        {userData.badges.map((badge: string, i: number) => (
+                          <div key={i} className="p-2 rounded-lg bg-white/5 border border-white/10 text-center flex flex-col items-center justify-center gap-1 aspect-square">
+                            <Award className="w-5 h-5 text-amber-400" />
+                            <p className="text-[10px] font-medium leading-tight text-white/90">{badge}</p>
+                          </div>
+                        ))}
+                        {[...Array(Math.max(0, 6 - userData.badges.length))].map((_, i) => (
+                          <div key={`locked-${i}`} className="p-2 rounded-lg bg-white/5 border border-white/10 text-center flex flex-col items-center justify-center gap-1 aspect-square opacity-40">
+                            <Star className="w-5 h-5 text-white/40" />
+                            <p className="text-[10px] leading-tight">Locked</p>
+                          </div>
+                        ))}
+                      </>
+                    ) : (
+                      <div className="col-span-3 text-center py-6 bg-white/5 rounded-xl border border-white/10">
+                        <p className="text-sm text-white/60">
+                          Start tracking expenses to earn badges!
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-            </div>
-          </Card>
-        </motion.div>
+            </Card>
+          </motion.div>
 
-        {/* Monthly Income */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-        >
-          <Card className="p-6">
-            <h3 className="mb-4">Monthly Income</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block mb-2 text-sm text-muted-foreground">
-                  Update your monthly income (₹)
-                </label>
-                <Input
-                  type="number"
-                  value={monthlyIncome}
-                  onChange={(e) => setMonthlyIncome(e.target.value)}
-                  className="text-xl"
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleSaveIncome}
-                  size="sm"
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-                >
-                  Save Income
-                </Button>
-                {showIncomeSuccess && (
-                  <span className="text-sm text-green-600 flex items-center gap-1">✅ Saved!</span>
-                )}
-              </div>
-            </div>
-          </Card>
-        </motion.div>
-
-
-
-        {/* Logout Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <Button
-            variant="destructive"
-            className="w-full"
-            onClick={onLogout}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
           >
-            Logout
-          </Button>
-        </motion.div>
-
-        {/* Credit Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="text-center py-4"
-        >
-          <p className="text-sm text-muted-foreground">
-            Made By <span className="font-semibold text-foreground">Meet G. Dave</span>
-          </p>
-        </motion.div>
+            <Card className="p-6 glass-card border-destructive/20">
+              <h3 className="text-lg font-semibold mb-4 text-white">Account</h3>
+              <Button
+                variant="destructive"
+                className="w-full bg-destructive/20 hover:bg-destructive/40 text-destructive-foreground border border-destructive/30"
+                onClick={onLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+              
+              <div className="mt-8 text-center">
+                <p className="text-xs text-muted-foreground">
+                  Made with ♥ By <span className="font-semibold text-white/70">Meet G. Dave</span>
+                </p>
+                <p className="text-[10px] text-muted-foreground/60 mt-1">Version 2.0.0 (Premium)</p>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

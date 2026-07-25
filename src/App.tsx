@@ -8,6 +8,8 @@ import { ReportsScreen } from './components/ReportsScreen';
 import { AIScreen } from './components/AIScreen';
 import { SettingsScreen } from './components/SettingsScreen';
 import { BottomNav } from './components/BottomNav';
+import { DesktopSidebar } from './components/DesktopSidebar';
+import { CommandPalette } from './components/CommandPalette';
 import { Toaster } from './components/ui/sonner';
 import { toast } from 'sonner';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
@@ -386,39 +388,49 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen">
-      {currentScreen === 'dashboard' && (
-        <Dashboard
-          userData={userData}
-          onAddExpense={() => setCurrentScreen('expenses')}
-        />
-      )}
-      {currentScreen === 'expenses' && (
-        <ExpenseScreen
-          userData={userData}
-          onAddExpense={handleAddExpense}
-          onUpdateExpense={handleUpdateExpense}
-          onDeleteExpense={handleDeleteExpense}
-        />
-      )}
-      {currentScreen === 'reports' && (
-        <ReportsScreen userData={userData} />
-      )}
-      {currentScreen === 'ai' && (
-        <AIScreen userData={userData} />
-      )}
-      {currentScreen === 'settings' && (
-        <SettingsScreen
-          userData={userData}
-          onUpdateBudget={handleUpdateBudget}
-          onLogout={handleLogout}
-        />
-      )}
+    <div className="min-h-screen bg-background text-foreground flex flex-col md:flex-row font-sans selection:bg-primary/30">
+      <DesktopSidebar
+        currentScreen={currentScreen}
+        onNavigate={setCurrentScreen}
+        userData={userData}
+      />
+      <main className="flex-1 pb-24 md:pb-0 h-screen overflow-y-auto relative">
+        <div className="max-w-7xl mx-auto p-4 md:p-8">
+          {currentScreen === 'dashboard' && (
+            <Dashboard
+              userData={userData}
+              onAddExpense={() => setCurrentScreen('expenses')}
+            />
+          )}
+          {currentScreen === 'expenses' && (
+            <ExpenseScreen
+              userData={userData}
+              onAddExpense={handleAddExpense}
+              onUpdateExpense={handleUpdateExpense}
+              onDeleteExpense={handleDeleteExpense}
+            />
+          )}
+          {currentScreen === 'reports' && (
+            <ReportsScreen userData={userData} />
+          )}
+          {currentScreen === 'ai' && (
+            <AIScreen userData={userData} />
+          )}
+          {currentScreen === 'settings' && (
+            <SettingsScreen
+              userData={userData}
+              onUpdateBudget={handleUpdateBudget}
+              onLogout={handleLogout}
+            />
+          )}
+        </div>
+      </main>
       <BottomNav
         currentScreen={currentScreen}
         onNavigate={setCurrentScreen}
       />
-      <Toaster position="top-center" richColors closeButton duration={2000} />
+      <CommandPalette onNavigate={setCurrentScreen} />
+      <Toaster position="top-center" richColors closeButton duration={2000} theme="dark" />
     </div>
   );
 }
